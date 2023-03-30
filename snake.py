@@ -27,6 +27,7 @@ fps = pygame.time.Clock()
 headerFont = pygame.font.Font('assets/fonts/pixeloidBold.ttf', 20)
 textFont = pygame.font.Font('assets/fonts/pixeloid.ttf', 16)
 
+# quit pygame and python
 def quit():
     pygame.quit()
     sys.exit()
@@ -38,7 +39,7 @@ def gameOverSequence(color, score, gameOverFont, textFont, snakeBody):
         
         game_over_surface = gameOverFont.render('Game Over', True, color)
         score_surface = textFont.render('Your score is: ' + str(score), True, color)
-        instruction_surface = textFont.render('Press any key to go to the main menu.', True, fgColor)
+        instruction_surface = textFont.render('Press ENTER to go to the main menu.', True, fgColor)
         
         game_over_rect = game_over_surface.get_rect()
         game_over_rect.midtop = (window_x / 2, window_y / 4)
@@ -52,12 +53,11 @@ def gameOverSequence(color, score, gameOverFont, textFont, snakeBody):
         game_window.blit(game_over_surface, game_over_rect)
         game_window.blit(score_surface, score_rect)
         game_window.blit(instruction_surface, instruction_rect)
-        
-        time.sleep(1)
-        
+                
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                return
+                if event.key == pygame.K_RETURN:
+                    return
             if event.type == pygame.QUIT:
                 quit()
         
@@ -93,14 +93,6 @@ def gameStart():
     while True and not gameOver:
         game_window.fill(bgColor)
         
-        # draw area borders
-        borderWidth = 10
-        
-        topBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, 40, window_x, borderWidth))
-        leftBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, 40, borderWidth, window_y - 40))
-        rightBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(window_x - 10, 40, 10, window_y - 40))
-        bottomBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, window_y - 10, window_x, borderWidth))    
-        
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
@@ -135,6 +127,14 @@ def gameStart():
         
         showScore(score, fgColor, textFont)
         
+        # draw area borders
+        borderWidth = 10
+        
+        topBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, 40, window_x, borderWidth))
+        leftBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, 40, borderWidth, window_y - 40))
+        rightBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(window_x - 10, 40, 10, window_y - 40))
+        bottomBorder = pygame.draw.rect(game_window, fgColor, pygame.Rect(0, window_y - 10, window_x, borderWidth))    
+        
         # insert object into array of snake body
         snake_body.insert(0, list(snake_position))
         if snake_position[0] == food_position[0] and snake_position[1] == food_position[1]:
@@ -164,6 +164,12 @@ def gameStart():
         if snake_position[1] <= 40 or snake_position[1] >= window_y - 10:
             gameOver = True
             gameOverSequence(gameOverColor, score, headerFont, textFont, snake_body)
+        
+        # check if snake collides with body
+        for block in snake_body[1:]:
+            if snake_position[0] == block[0] and snake_position[1] == block[1]:
+                gameOver = True
+                gameOverSequence(gameOverColor, score, headerFont, textFont, snake_body)
         
         # refresh the game screen
         pygame.display.update()
