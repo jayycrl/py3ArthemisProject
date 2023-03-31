@@ -13,4 +13,4 @@ Snake is a game where you control a snake, moving around the screen and eating f
 ## Dependencies
 How to get `pygame` dependency (required):
 
-- `python3 -m pip install pygame`
+`python -m pip install -U pygame==2.3.0 --user`
