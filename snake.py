@@ -1,7 +1,11 @@
-import pygame
+import sys
+try:
+    import pygame
+except:
+    print("Pygame is not installed.\nPlease run: 'python -m pip install -U pygame==2.3.0 --user'")
+    sys.exit()
 import time
 import random
-import sys
 
 snake_speed = 10
 
