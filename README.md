@@ -12,4 +12,4 @@ Snake is a game where you control a snake, moving around the screen and eating f
 
 ## Installation
 1. Get the `pygame` module (required): `python -m pip install -U pygame==2.3.0 --user`
-2. Download the `snake.py` file from the [releases page](https://github.com/jayycrl/py3ArthemisProject/releases).
+2. Download the `snake.zip` file from the [releases page](https://github.com/jayycrl/py3ArthemisProject/releases).
