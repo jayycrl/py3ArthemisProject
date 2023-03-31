@@ -1,4 +1,5 @@
 import sys
+import json
 try:
     import pygame
 except:
@@ -13,13 +14,40 @@ window_x = 480
 window_y = 520
 
 # catppuccin mocha color scheme: https://github.com/catppuccin/catppuccin
-bgColor = pygame.Color(17, 17, 27)
-fgColor = pygame.Color(205, 214, 244)
-buttonColor = pygame.Color(49, 50, 68)
-highlightColor = pygame.Color(69, 71, 90)
-gameOverColor = pygame.Color(235, 160, 172)
-foodColor = pygame.Color(243, 139, 168)
-greenColor = pygame.Color(166, 227, 161)
+defaultSettings = {
+    "difficulty": "easy",
+    "colorPalette": {
+        "bgColor"       : (17, 17, 27),
+        "fgColor"       : (205, 214, 244),
+        "buttonColor"   : (49, 50, 68),
+        "highlightColor": (69, 71, 90),
+        "gameOverColor" : (235, 160, 172),
+        "foodColor"     : (243, 139, 168),
+        "greenColor"    : (166, 227, 161)
+    },
+    "walls": True
+}
+    
+# check if settings file exists
+try:
+    file = open('settings.json', mode = 'x')
+    file.close()
+    with open('settings.json', mode = 'w') as file:
+        file.write(json.dumps(defaultSettings))
+except FileExistsError:
+    with open('settings.json', mode = 'r') as file:
+        settings = json.load(file)
+finally:
+    file = open('settings.json', mode = 'r')
+    settings = json.load(file)
+    colorPalette = settings["colorPalette"]
+    bgColor = pygame.Color(colorPalette["bgColor"])
+    fgColor = pygame.Color(colorPalette["fgColor"])
+    buttonColor = pygame.Color(colorPalette["buttonColor"])
+    highlightColor = pygame.Color(colorPalette["highlightColor"])
+    gameOverColor = pygame.Color(colorPalette["gameOverColor"])
+    foodColor = pygame.Color(colorPalette["foodColor"])
+    greenColor = pygame.Color(colorPalette["greenColor"])
 
 pygame.init()
 pygame.font.init()
@@ -33,6 +61,7 @@ textFont = pygame.font.Font('assets/fonts/pixeloid.ttf', 16)
 
 # quit pygame and python
 def quit():
+    file.close()
     pygame.quit()
     sys.exit()
 
@@ -52,7 +81,7 @@ def gameOverSequence(color, score, gameOverFont, textFont, snakeBody):
         score_rect.midtop = (window_x / 2, (window_y / 4) + 30)
         
         instruction_rect = instruction_surface.get_rect()
-        instruction_rect.center = (window_x / 2, (window_y / 4) + 60)
+        instruction_rect.center = (window_x / 2, (window_y / 4) + 70)
         
         game_window.blit(game_over_surface, game_over_rect)
         game_window.blit(score_surface, score_rect)
@@ -72,6 +101,32 @@ def showScore(score, color, font):
     score_surface = font.render('Score: ' + str(score), True, color)
     score_rect = score_surface.get_rect()
     game_window.blit(score_surface, score_rect)
+    
+def gamePause(color):
+    while True:
+        game_window.fill(bgColor)
+        
+        paused_surface = headerFont.render('Paused', True, color)
+        instruction_surface = textFont.render('Press ENTER or ESCAPE to go back to the game.', True, fgColor)
+        
+        paused_rect = paused_surface.get_rect()
+        paused_rect.midtop = (window_x / 2, window_y / 4)
+        
+        instruction_rect = instruction_surface.get_rect()
+        instruction_rect.center = (window_x / 2, (window_y / 4) + 40)
+        
+        game_window.blit(paused_surface, paused_rect)
+        game_window.blit(instruction_surface, instruction_rect)
+                
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
+                    return False
+            if event.type == pygame.QUIT:
+                quit()
+        
+        pygame.display.update()
+        fps.tick(60)
 
 def gameStart():
     snake_position = [230, 270]
@@ -93,20 +148,24 @@ def gameStart():
     change_to = direction
     
     gameOver = False
+    isPaused = False
 
-    while True and not gameOver:
+    while True and not gameOver and not isPaused:
         game_window.fill(bgColor)
         
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
+                if event.key == pygame.K_w or event.key == pygame.K_UP:
                     change_to = 'UP'
-                if event.key == pygame.K_s:
+                if event.key == pygame.K_s or event.key == pygame.K_DOWN:
                     change_to = 'DOWN'
-                if event.key == pygame.K_a:
+                if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                     change_to = 'LEFT'
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                     change_to = 'RIGHT'
+                if event.key == pygame.K_ESCAPE:
+                    isPaused = True
+                    isPaused = gamePause(fgColor)
             if event.type == pygame.QUIT:
                 quit()
         
@@ -189,14 +248,25 @@ def menuSelector(option):
 
 def settings():
     pass
+    
 
 # put menu code here
 def menu():
     option = 0
-    while True:
+    
+    # intro animation
+    titleString = ""
+    for letter in "Python Snake":
         game_window.fill(bgColor)
         
-        title = headerFont.render('Python Snake', True, fgColor)
+        titleString += letter
+        title = headerFont.render(titleString, True, fgColor)
+        game_window.blit(title, ((window_x / 2) - 90, 100))
+        pygame.display.update()
+        fps.tick(15)
+            
+    while True:
+        game_window.fill(bgColor)
         
         # list of buttons on main menu
         buttons = ["Start", "Settings", "Exit"]
