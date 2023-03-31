@@ -7,6 +7,8 @@ Snake is a game where you control a snake, moving around the screen and eating f
 - Randomly generated food
 - Difficulty options
 - Main menu
+- Pause menu
+- Enable/disable walls
 - Scoring system
 - Color palette switching
 
