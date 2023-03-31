@@ -8,47 +8,85 @@ except:
 import time
 import random
 
-snake_speed = 10
-
 window_x = 480
 window_y = 520
 
 # catppuccin mocha color scheme: https://github.com/catppuccin/catppuccin
+# nord color color scheme: https://www.nordtheme.com
+# rose pine dawn color scheme: https://rosepinetheme.com/palette
 defaultSettings = {
-    "difficulty": "easy",
+    "difficulty": 10,
+    "chosenPalette": "old-school",
     "colorPalette": {
-        "bgColor"       : (17, 17, 27),
-        "fgColor"       : (205, 214, 244),
-        "buttonColor"   : (49, 50, 68),
-        "highlightColor": (69, 71, 90),
-        "gameOverColor" : (235, 160, 172),
-        "foodColor"     : (243, 139, 168),
-        "greenColor"    : (166, 227, 161)
+        "catppuccin-mocha": {
+            "bgColor"       : (17, 17, 27),
+            "fgColor"       : (205, 214, 244),
+            "buttonColor"   : (49, 50, 68),
+            "highlightColor": (69, 71, 90),
+            "gameOverColor" : (235, 160, 172),
+            "foodColor"     : (243, 139, 168),
+            "snakeColor"    : (166, 227, 161)
+        },
+        "nord": {
+            "bgColor"       : ('#2E3440'),
+            "fgColor"       : ('#ECEFF4'),
+            "buttonColor"   : ('#3B4252'),
+            "highlightColor": ('#4C566A'),
+            "gameOverColor" : ('#BF616A'),
+            "foodColor"     : ('#D08770'),
+            "snakeColor"    : ('#AEBE8C')
+        },
+        "rose-pine-dawn": {
+            "bgColor"       : ('#faf4ed'),
+            "fgColor"       : ('#575279'),
+            "buttonColor"   : ('#fffaf3'),
+            "highlightColor": ('#f2e9e1'),
+            "gameOverColor" : ('#b4637a'),
+            "foodColor"     : ('#d7827e'),
+            "snakeColor"    : ('#56949f')
+        },
+        "old-school": {
+            "bgColor"       : ('#d1e37b'),
+            "fgColor"       : ('#0f1105'),
+            "buttonColor"   : ('#d1e37b'),
+            "highlightColor": ('#6e7a37'),
+            "gameOverColor" : ('#0f1105'),
+            "foodColor"     : ('#0f1105'),
+            "snakeColor"    : ('#0f1105')
+        }
     },
     "walls": True
 }
-    
+
 # check if settings file exists
 try:
     file = open('settings.json', mode = 'x')
     file.close()
+    # if not, create settings.json with default settings
     with open('settings.json', mode = 'w') as file:
-        file.write(json.dumps(defaultSettings))
+        file.write(json.dumps(defaultSettings, indent = 4))
 except FileExistsError:
+    # if file exists, do nothing
+    pass
+finally:
+    # read settings.json file and define color palette, snake speed, and walls
     with open('settings.json', mode = 'r') as file:
         settings = json.load(file)
-finally:
-    file = open('settings.json', mode = 'r')
-    settings = json.load(file)
-    colorPalette = settings["colorPalette"]
-    bgColor = pygame.Color(colorPalette["bgColor"])
-    fgColor = pygame.Color(colorPalette["fgColor"])
-    buttonColor = pygame.Color(colorPalette["buttonColor"])
-    highlightColor = pygame.Color(colorPalette["highlightColor"])
-    gameOverColor = pygame.Color(colorPalette["gameOverColor"])
-    foodColor = pygame.Color(colorPalette["foodColor"])
-    greenColor = pygame.Color(colorPalette["greenColor"])
+        palette = settings["chosenPalette"]
+        colors = settings["colorPalette"][palette]
+        
+        bgColor = pygame.Color(colors["bgColor"])
+        fgColor = pygame.Color(colors["fgColor"])
+        buttonColor = pygame.Color(colors["buttonColor"])
+        highlightColor = pygame.Color(colors["highlightColor"])
+        gameOverColor = pygame.Color(colors["gameOverColor"])
+        foodColor = pygame.Color(colors["foodColor"])
+        snakeColor = pygame.Color(colors["snakeColor"])
+        
+        snake_speed = settings["difficulty"]
+        walls = settings["walls"]
 
+# initialize pygame
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('Python Snake')
@@ -98,26 +136,47 @@ def gameOverSequence(color, score, gameOverFont, textFont, snakeBody):
         fps.tick(60)
 
 def showScore(score, color, font):
+    # render score
     score_surface = font.render('Score: ' + str(score), True, color)
     score_rect = score_surface.get_rect()
-    game_window.blit(score_surface, score_rect)
+    score_rect.midleft =  (10, 20)
     
+    # render pause instructions
+    instruction_surface = font.render('Press ESCAPE to pause.', True, color)
+    instruction_rect = instruction_surface.get_rect()
+    instruction_rect.midright = (window_x - 10, 20)
+    
+    # display text on screen
+    game_window.blit(score_surface, score_rect)
+    game_window.blit(instruction_surface, instruction_rect)
+    
+# this allows the user to take a break from the game
 def gamePause(color):
     while True:
+        # cover the screen
         game_window.fill(bgColor)
         
+        # render text telling the user that the game is paused and how to get back to the game
         paused_surface = headerFont.render('Paused', True, color)
         instruction_surface = textFont.render('Press ENTER or ESCAPE to go back to the game.', True, fgColor)
+        control_surface = textFont.render('Control the snake with W A S D or the arrow keys.', True, fgColor)
         
+        # position the text
         paused_rect = paused_surface.get_rect()
-        paused_rect.midtop = (window_x / 2, window_y / 4)
+        paused_rect.center = (window_x / 2, window_y / 4)
         
         instruction_rect = instruction_surface.get_rect()
         instruction_rect.center = (window_x / 2, (window_y / 4) + 40)
         
+        control_rect = control_surface.get_rect()
+        control_rect.center = (window_x / 2, window_y - 40)
+        
+        # display text on the screen
         game_window.blit(paused_surface, paused_rect)
         game_window.blit(instruction_surface, instruction_rect)
-                
+        game_window.blit(control_surface, control_rect)
+        
+        # accept input to take user back to the game
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN or event.key == pygame.K_ESCAPE:
@@ -129,9 +188,11 @@ def gamePause(color):
         fps.tick(60)
 
 def gameStart():
+    # initial position and score
     snake_position = [230, 270]
     score = 0
 
+    # initial snake body
     snake_body = [
         [snake_position[0], snake_position[1]],
         [snake_position[0] - 10, snake_position[1]],
@@ -139,14 +200,18 @@ def gameStart():
         [snake_position[0] - 30, snake_position[1]]
     ]
     
+    # spawns initial food randomly
     food_position = [random.randrange(20, window_x - 20, 10),
                      random.randrange(60, window_y - 20, 10)]
 
+    # manages whether food can spawn or not
     food_spawn = True
 
+    # sets direction of snake and direction to turn to. (default snake movement is right)
     direction = 'RIGHT'
     change_to = direction
     
+    # manages game states (paused or game over)
     gameOver = False
     isPaused = False
 
@@ -215,7 +280,7 @@ def gameStart():
         
         # render snake body
         for pos in snake_body:
-            pygame.draw.rect(game_window, greenColor, pygame.Rect(pos[0], pos[1], 10, 10))
+            pygame.draw.rect(game_window, snakeColor, pygame.Rect(pos[0], pos[1], 10, 10))
         
         # render food
         pygame.draw.rect(game_window, foodColor, pygame.Rect(food_position[0], food_position[1], 10, 10))
@@ -249,7 +314,6 @@ def menuSelector(option):
 def settings():
     pass
     
-
 # put menu code here
 def menu():
     option = 0
