@@ -22,6 +22,9 @@ The project proposal can be found here: https://github.com/jayycrl/py3ArthemisPr
 ## IPO
 The README will be updated when the IPO is done.
 
+## Poster
+![Python Snake Poster](https://user-images.githubusercontent.com/127172433/231917383-f16fee62-04f6-4de3-9db7-7f11590d3051.png)
+
 ## 
 
 ## Function hierarchy chart
