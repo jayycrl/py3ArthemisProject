@@ -1,5 +1,6 @@
 # py3ArthemisProject
 A Snake game made in Python for our first year Programming Logic &amp; Design class.
+
 Demo: https://youtu.be/R4ywRMTeA7M
 
 ## About the game
