@@ -20,6 +20,7 @@ Snake is a game where you control a snake, moving around the screen and eating f
 
 ## Documentation
 The project proposal can be found here: https://github.com/jayycrl/py3ArthemisProject/releases/tag/proposal
+
 The final documentation can be found here: https://github.com/jayycrl/py3ArthemisProject/releases/tag/final-documentation
 
 ## IPO
