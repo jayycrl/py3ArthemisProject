@@ -32,6 +32,3 @@ The project proposal can be found here: https://github.com/jayycrl/py3ArthemisPr
 
 ## Poster
 ![Python Snake Poster](https://user-images.githubusercontent.com/127172433/231917383-f16fee62-04f6-4de3-9db7-7f11590d3051.png)
-
-## Function hierarchy chart
-![hierarchyChart](https://user-images.githubusercontent.com/127172433/229117171-cac68e8f-0dd3-4d1e-8f9d-6c29c9bd77d8.png)
